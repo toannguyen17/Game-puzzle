@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=800">
+	<title>[App] Game puzzle</title>
+	<style type="text/css">
+      	#xt_auth_container, #xt_auth_iframe, noframes + div {
+          	opacity: 0;
+   			position: absolute !important;
+   			top: -100px !important;
+      	}
+		*, *:before, *:after {
+			-webkit-box-sizing: border-box;
+			box-sizing: border-box;
+		}
+		html, body {
+			background: #f6f6f6;
+			font-family: arial;
+		}
+		.z-depth {
+			-webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+			box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+		}
+		.regBox {
+			background: #fff;
+			margin: 30px auto;
+			max-width: 900px;
+			border-radius: 3px;
+			box-shadow: 0 0 5px -3px;
+		}
+		.menuGame {
+			padding: 8px;
+			text-align: center;
+		}
+		.selectGame {
+			margin: 6px;
+			transform: scale(1);
+			transition: all .2s;
+			cursor: pointer;
+		}
+		.selectGame:hover {
+			-webkit-box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+			box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.12), 0 1px 5px 0 rgba(0, 0, 0, 0.2);
+			transform: scale(1.1);
+		}
+		.inGame {
+			display: none;
+		}
+		.dialog, .inGame {
+			display: none;
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			left: 0;
+			z-index: 999;
+		}
+		.dialog .closeDialog {
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			background: #00000047;
+			left: 0;
+		}
+		.dialog .content, .inGame .content {
+			position: relative;
+			margin: 22px auto 0 auto;
+			background: #fff;
+			border-radius: 3px;
+			transition: width .15s;
+			width: 50px;
+		}
+		.dialog .content {
+			margin: 11% auto 0 auto;
+		}
+		.inGame .content {
+			padding: 20px;
+		}
+
+		.inGame .content .close {
+			position: absolute;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			width: 34px;
+			height: 34px;
+			background: #fff;
+			font-weight: bolder;
+			color: #ff3d00;
+			right: -10px;
+			top: -13px;
+			border-radius: 13px;
+			cursor: pointer;
+		}
+
+		#imgGame {
+			width: 100px;
+			height: 100px;
+			cursor: pointer;
+			transition: all .2s;
+			position: relative;
+		}
+
+		#imgGame:hover {
+			margin: 70px 0 0 0;
+			z-index: 999;
+			transform: scale(3);
+			width: 100px;
+			height: 100px;
+			cursor: pointer;
+		}
+
+		.level {
+			padding: 20px;
+			display: flex;
+			justify-content: center;
+		}
+		.level div {
+			width: 80px;
+			height: 80px;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			margin: 10px;
+			font-weight: bold;
+			transition: all .2s;
+			cursor: pointer;
+		}
+		.level div:hover {
+			transform: scale(1.17);
+		}
+		.inGame {
+			background: #00000047;
+		}
+		.boxGame {
+			position: relative;
+			height: 600px;
+			width: 600px;
+			overflow: hidden;
+			touch-action: none;
+		}
+		.boxGame .item {
+			position: absolute;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: left .2s, top .2s;
+		}
+
+		.boxGame .item:before {
+			content: '';
+			border: 1px solid #fff;
+			width: 100%;
+			height: 100%;
+			z-index: 5;
+		}
+
+		.boxGame .iNode {
+			z-index: 800;
+		}
+
+		.boxGame .iNode:before {
+			border: 4px solid #FF5722;
+			border-radius: 50%;
+		}
+
+		.boxGame .iNode:after {
+			content: '';
+			width: 100%;
+			height: 100%;
+			z-index: 4;
+			border: 4px solid #FF5722;
+		}
+
+		.boxGame .item div {
+			background-size: 600px 600px;
+			position: absolute;
+		}
+
+		.pulse {
+			overflow: visible;
+			position: relative
+		}
+
+		.pulse::before {
+			content: '';
+			display: block;
+			position: absolute;
+			width: 100%;
+			height: 100%;
+			top: 0;
+			left: 0;
+			background-color: inherit;
+			border-radius: inherit;
+			-webkit-transition: opacity .3s, -webkit-transform .3s;
+			transition: opacity .3s, -webkit-transform .3s;
+			transition: opacity .3s, transform .3s;
+			transition: opacity .3s, transform .3s, -webkit-transform .3s;
+			-webkit-animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+			animation: pulse-animation 1s cubic-bezier(0.24, 0, 0.38, 1) infinite;
+			z-index: -1
+		}
+
+		@-webkit-keyframes pulse-animation {
+			0% {
+				opacity: 1;
+				-webkit-transform: scale(0);
+				transform: scale(0)
+			}
+
+			50% {
+				opacity: 0;
+				-webkit-transform: scale(1.3);
+				transform: scale(1.3)
+			}
+
+			100% {
+				opacity: 0;
+				-webkit-transform: scale(1.3);
+				transform: scale(1.3)
+			}
+		}
+
+		@keyframes pulse-animation {
+			0% {
+				opacity: 1;
+				-webkit-transform: scale(0);
+				transform: scale(0)
+			}
+
+			50% {
+				opacity: 0;
+				-webkit-transform: scale(1.3);
+				transform: scale(1.3)
+			}
+
+			100% {
+				opacity: 0;
+				-webkit-transform: scale(1.3);
+				transform: scale(1.3)
+			}
+		}
+		.win {
+			display: none;
+			padding: 20px;
+			text-align: center;
+			font-size: 1.4rem;
+			color: #FF5722;
+		}
+	</style>
+</head>
+<body>
+	<h2 style="text-align: center;margin: 30px 0 0 0;">PUZZLE PRO</h2>
+	<div style="text-align: center; font-size: .79rem">Code by RedT</div>
+	<div class="regBox z-depth">
+		<div class="menuGame">
+			<img class="selectGame" src="img1.jpg" alt="Game1" width="200px" />
+			<img class="selectGame" src="IMG_0016.png" alt="Game1" width="200px" />
+			<img class="selectGame" src="IMG_0776.jpg" alt="Game1" width="200px" />
+			<img class="selectGame" src="game5.jpg" alt="Game1" width="200px" />
+			<img class="selectGame" src="game6.jpg" alt="Game1" width="200px" />
+		</div>
+		<div class="inGame">
+			<div class="content">
+				<div class="close z-depth">X</div>
+				<div style="display: flex;">
+					<div style="width: 100px;height: 100px;">
+						<img class="z-depth" id="imgGame" src="" alt="image game" />
+					</div>
+					<div style="padding: 0 0px 0 15px;width: 100%; display: flex;">
+						<div class="boxGame z-depth">
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="dialog">
+		<div class="closeDialog"></div>
+		<div class="content z-depth">
+			<div class="level">
+				<div class="z-depth" level="4" style="background: #00BCD4;">4X4</div>
+				<div class="z-depth" level="5" style="background: #03A9F4;">5X5</div>
+				<div class="z-depth" level="7" style="background: #3F51B5; color: #fff">7X7</div>
+				<div class="z-depth" level="9" style="background: #9C27B0; color: #fff">9X9</div>
+				<div class="z-depth" level="12" style="background: #FFC107;">12X12</div>
+				<div class="z-depth" level="16" style="background: #FF5722;">16X16</div>
+			</div>
+			<div class="win">
+				Sắp xếp xong...
+			</div>
+		</div>
+	</div>
+	<script type="text/javascript">
+		let puzzle = function() {
+			this.isplay        = false;
+			this.paint         = false;
+			this.level         = 4;
+			this.img           = '';
+
+			this.arrTime = [];
+
+			this.isTouch       = false;
+			this.pointStart    = null;
+
+			this.menuGame      = document.querySelector('.menuGame');
+
+			this.dialog        = document.querySelector('.dialog');
+			this.dialogContent = this.dialog.querySelector('.content');
+			this.dialogLevel   = this.dialogContent.querySelector('.level');
+			this.dialogWin     = this.dialogContent.querySelector('.win');
+
+			this.inGame        = document.querySelector('.inGame');
+			this.inGameContent = this.inGame.querySelector('.content');
+
+			this.boxGame       = this.inGame.querySelector('.boxGame');
+			this.imgGame       = this.inGame.querySelector('#imgGame');
+
+			this.elLevel       = document.querySelector('.level').querySelectorAll('div');
+
+			this.init();
+		}
+		puzzle.prototype.init = function(){
+			this.regLevel();
+
+			this.inGame.querySelector('.close').addEventListener('click', function(){
+				this.stop();
+			}.bind(this));
+
+			this.dialog.querySelector('.closeDialog').addEventListener('click', function(e){
+				this.closeDialog();
+			}.bind(this));
+
+			document.querySelectorAll('.selectGame').forEach(function(element){
+				element.addEventListener('click', function(e){
+					this.img = e.target.getAttribute('src');
+					this.dialogSelectLevel();
+				}.bind(this));
+			}.bind(this));
+
+			this.addEventKeydown();
+		}
+
+		puzzle.prototype.regLevel = function(){
+			this.elLevel.forEach(function(el){
+				el.addEventListener('click', function(e){
+					this.level = e.target.getAttribute('level');
+					this.closeDialog();
+					this.stop();
+					this.start();
+				}.bind(this));
+			}.bind(this));
+		}
+
+		// Dialog
+		puzzle.prototype.openDialog = function(){
+			this.dialog.style.display = 'block';
+			setTimeout(function(){
+				let width = window.innerWidth - 30;
+				if (width > 700) width = 700;
+				this.dialogContent.style.width = width + 'px';
+			}.bind(this), 5);
+
+		}
+		puzzle.prototype.closeDialog = function(){
+			this.dialog.style.display = 'none';
+			this.dialogContent.style.width = null;
+		}
+		puzzle.prototype.dialogSelectLevel = function(){
+			this.dialogLevel.style.display = 'flex';
+			this.dialogWin.style.display   = 'none';
+			this.openDialog();
+		}
+		puzzle.prototype.showDialogWin = function(){
+			this.dialogLevel.style.display = 'none';
+			this.dialogWin.style.display   = 'block';
+			this.openDialog();
+		}
+		// END dialog
+
+		// Bắt đầu, chuẩn bị ảnh để chơi
+		puzzle.prototype.start = function(){
+			this.inGame.style.display = 'block';
+			this.imgGame.src = this.img;
+			setTimeout(function(){
+				this.inGameContent.style.width = 756 + 'px';
+			}.bind(this), 5);
+
+			this.width = 600/this.level;
+			this.matrix       = [];
+			let matrixAll     = [];
+			for (let hangNgang = 0; hangNgang < this.level; hangNgang++) {
+				let cot = [];
+				for (let hangDoc = 0; hangDoc < this.level; hangDoc++) {
+					let data = {x:hangDoc*this.width, y:hangNgang*this.width};
+					data.el = document.createElement('div');
+					data.el.setAttribute('style', 'width:'+this.width+'px;height:'+this.width+'px;left:'+data.x+'px;top:'+data.y+'px');
+					if (hangNgang === 0 && hangDoc === this.level-1) {
+						data.el.setAttribute('class', 'item iNode pulse');
+						data.el.innerHTML = '<div style="height:'+this.width+'px;width:'+this.width+'px;">';
+						this.cursor = data;
+					}else{
+						data.el.setAttribute('class', 'item');
+						data.el.innerHTML = '<div style="background:url('+this.img+');height:'+this.width+'px;width:'+this.width+'px;background-position:'+ (-data.x) + 'px '+ (-data.y) + 'px;background-size:600px 600px;">'+
+							'</div>';
+					}
+					cot.push(data);
+					matrixAll.push(data);
+					this.boxGame.appendChild(data.el);
+					data.el.RedT = data;
+				}
+				this.matrix.push(cot);
+			}
+
+			this.jumblyMatrix = [];
+
+
+			// Lấy ma trận sẵn sàng trộn
+			let allItem = this.getMatrixAll();
+			allItem = allItem.sort(function(a, b){
+				return a.el.offsetTop - b.el.offsetTop;
+			});
+			for (let i = 0; i < this.level; i++) {
+				let newArr = allItem.splice(0, this.level);
+				newArr.sort(function(a, b){
+					return a.el.offsetLeft - b.el.offsetLeft;
+				});
+				this.jumblyMatrix.push(newArr);
+			}
+
+			// Tìm con chỏ
+			let endF = false;
+			for (let i = 0; i < this.jumblyMatrix.length; i++) {
+				let getArr = this.jumblyMatrix[i];
+				for (let j = 0; j < getArr.length; j++) {
+					let check = getArr[j];
+					if (check === this.cursor) {
+						endF = true;
+						this.cursor.indexX = j;
+						this.cursor.indexY = i;
+						break;
+					}
+				}
+				if (endF) {
+					break;
+				}
+			}
+
+			this.regTime1 = setTimeout(function(){
+				// trộn ảnh
+				let totall = 1000*(this.level<<2);
+				for (let i = 0; i < totall; i++) {
+					let ramd = [];
+					// Kiểm tra giới hạn trái
+					let check = this.jumblyMatrix[this.cursor.indexY][this.cursor.indexX+1];
+					if (check !== void 0) {
+						// được phép sang trái
+						ramd.push('left');
+					}
+
+					// Kiểm tra giới hạn phải
+					check = this.jumblyMatrix[this.cursor.indexY][this.cursor.indexX-1];
+					if (check !== void 0) {
+						// được phép sang phải
+						ramd.push('right');
+					}
+
+					// Kiểm tra giới hạn trên
+					check = this.jumblyMatrix[this.cursor.indexY+1];
+					if (check !== void 0) {
+						// được phép lên
+						ramd.push('top');
+					}
+
+					// Kiểm tra giới hạn dưới
+					check = this.jumblyMatrix[this.cursor.indexY-1];
+					if (check !== void 0) {
+						// được phép suống
+						ramd.push('bottom');
+					}
+
+					let r = Math.floor(Math.random() * ramd.length);
+					switch(ramd[r]){
+						case 'left':
+							this.moveLeft();
+							break;
+						case 'top':
+							this.moveTop();
+							break;
+						case 'right':
+							this.moveRight();
+							break;
+						case 'bottom':
+							this.moveBottom();
+							break;
+					}
+				}
+				// Vẽ ảnh sáo trộn
+				this.paint = true;
+				let ic = 0;
+				this.jumblyMatrix.forEach(function(row, indexRow){
+					if (this.paint){
+						row.forEach(function(cell, indexCell){
+							if (this.paint){
+								let regTime = setTimeout(function(){
+									let fromMatrix = this.matrix[indexRow][indexCell];
+									cell.el.style.left = fromMatrix.x + 'px';
+									cell.el.style.top  = fromMatrix.y + 'px';
+									let check = this.level-1;
+									if (indexRow === check && indexCell === check) {
+										this.play();
+									}
+								}.bind(this), ic*7);
+								this.arrTime.push(regTime);
+								ic++;
+							}
+						}.bind(this));
+					}
+				}.bind(this));
+				this.paint = false;
+			}.bind(this), 1000);
+		}
+
+		// Bắt đầu chơi
+		puzzle.prototype.play = function(){
+			this.isplay = true;
+		}
+
+		// Đóng game
+		puzzle.prototype.stop = function(){
+			this.isplay = false;
+			this.paint  = false;
+			this.inGame.style.display = 'none';
+			this.inGameContent.style.width = null;
+			this.boxGame.innerHTML = '';
+			this.matrix            = [];
+			clearTimeout(this.regTime1);
+			this.arrTime.forEach(function(time){
+				clearTimeout(time);
+			});
+			this.arrTime = [];
+		}
+
+		// đăng ký sự kiện nhấn và chạm
+		puzzle.prototype.addEventKeydown = function(){
+			window.addEventListener('keydown',   this.keydown.bind(this));
+
+			this.boxGame.addEventListener('touchstart',  this.touchStart.bind(this));
+			this.boxGame.addEventListener('touchmove',   this.touchMove.bind(this));
+			this.boxGame.addEventListener('touchend',    this.touchEnd.bind(this));
+			this.boxGame.addEventListener('touchcancel', this.touchEnd.bind(this));
+		}
+
+		puzzle.prototype.touchStart = function(e){
+			if (this.isplay) {
+				this.isTouch = true;
+				this.pointStart = e.changedTouches[0];
+			}
+		}
+		puzzle.prototype.touchMove = function(e){
+			if (this.isplay && this.isTouch) {
+				let tob  = e.changedTouches[0];
+				let dx   = tob.clientX - this.pointStart.clientX;
+				let dy   = tob.clientY - this.pointStart.clientY;
+
+				let bol2 = this.width/2;
+				if (dx >= bol2) {
+					this.touchEnd();
+					this.moveRight();
+					this.checkWin();
+					return void 0;
+				}
+				if (dx <= -bol2) {
+					this.touchEnd();
+					this.moveLeft();
+					this.checkWin();
+					return void 0;
+				}
+
+				if (dy >= bol2) {
+					this.touchEnd();
+					this.moveBottom();
+					this.checkWin();
+					return void 0;
+				}
+				if (dy <= -bol2) {
+					this.touchEnd();
+					this.moveTop();
+					this.checkWin();
+					return void 0;
+				}
+			}
+		}
+		puzzle.prototype.touchEnd = function(){
+			this.isTouch    = false;
+			this.pointStart = null;
+		}
+
+		puzzle.prototype.keydown = function(e){
+			if (this.isplay) {
+				switch(e.key){
+					case 'ArrowLeft':
+						//left
+						this.moveLeft();
+						break;
+
+					case 'ArrowUp':
+						//top
+						this.moveTop();
+						break;
+
+					case 'ArrowRight':
+						//right
+						this.moveRight();
+						break;
+
+					case 'ArrowDown':
+						//bottom
+						this.moveBottom();
+						break;
+
+					case 'a':
+					case 'â':
+					case 'A':
+					case 'Â':
+						//left
+						this.moveLeft();
+						break;
+
+					case 'ă':
+					case 'Ă':
+					case 'w':
+					case 'W':
+					case 'ư':
+					case 'Ư':
+						//top
+						this.moveTop();
+						break;
+
+					case 'd':
+					case 'đ':
+					case 'D':
+					case 'Đ':
+						//right
+						this.moveRight();
+						break;
+
+					case 's':
+					case 'S':
+					case 'ấ':
+					case 'Ấ':
+					case 'ắ':
+					case 'Ắ':
+					case 'ứ':
+					case 'Ứ':
+						//bottom
+						this.moveBottom();
+						break;
+				}
+				this.checkWin();
+			}
+		}
+
+		puzzle.prototype.moveLeft = function(){
+			this.moveX(1);
+		}
+
+		puzzle.prototype.moveTop = function(){
+			this.moveY(1);
+		}
+
+		puzzle.prototype.moveRight = function(){
+			this.moveX(-1);
+		}
+
+		puzzle.prototype.moveBottom = function(){
+			this.moveY(-1);
+		}
+
+		// Di chuyển cùng cột
+		puzzle.prototype.moveX = function(x){
+			let xNew  = this.cursor.indexX+x;
+			let check = this.jumblyMatrix[this.cursor.indexY][xNew];
+			if (check !== void 0) {
+				this.jumblyMatrix[this.cursor.indexY][xNew]               = this.cursor;
+				this.jumblyMatrix[this.cursor.indexY][this.cursor.indexX] = check;
+				if (this.isplay || this.paint) {
+					check.el.style.left       = this.matrix[this.cursor.indexY][this.cursor.indexX].x + 'px';
+					this.cursor.el.style.left = this.matrix[this.cursor.indexY][xNew].x + 'px';
+				}
+				this.cursor.indexX        = xNew;
+			}
+		}
+
+		// Di chuyển cùng hàng
+		puzzle.prototype.moveY = function(y){
+			let yNew  = this.cursor.indexY+y;
+			let check = this.jumblyMatrix[yNew];
+			if (check !== void 0) {
+				check = check[this.cursor.indexX];
+				this.jumblyMatrix[yNew][this.cursor.indexX]               = this.cursor;
+				this.jumblyMatrix[this.cursor.indexY][this.cursor.indexX] = check;
+				if (this.isplay || this.paint) {
+					check.el.style.top       = this.matrix[this.cursor.indexY][this.cursor.indexX].y + 'px';
+					this.cursor.el.style.top = this.matrix[yNew][this.cursor.indexX].y + 'px';
+				}
+				this.cursor.indexY       = yNew;
+			}
+		}
+
+		// hành động sau khi win
+		puzzle.prototype.win = function(array) {
+			this.isplay = false;
+			this.showDialogWin();
+		}
+
+		// kiểm tra đã win hay chưa
+		puzzle.prototype.checkWin = function(){
+			if (this.isplay) {
+				let win = true;
+				for (let i = 0; i < this.matrix.length; i++) {
+					let celMatrix       = this.matrix[i];
+					let celJumblyMatrix = this.jumblyMatrix[i];
+					for (let j = 0; j < this.matrix.length; j++) {
+						let colMatrix       = celMatrix[j];
+						let colJumblyMatrix = celJumblyMatrix[j];
+						if (colMatrix !== colJumblyMatrix) {
+							win = false;
+							break;
+						}
+					}
+					if (win === false) {
+						break;
+					}
+				}
+				if (win === true) {
+					this.win();
+				}
+			}
+		}
+
+		// lấy tất cả Node
+		puzzle.prototype.getMatrixAll = function(){
+			let matrix = [];
+			this.matrix.forEach(function(hang){
+				hang.forEach(function(o){
+					matrix.push(o);
+				});
+			});
+			return matrix;
+		}
+
+		let RedT = new puzzle();
+	</script>
+</body>
+</html>
